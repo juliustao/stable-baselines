@@ -49,7 +49,7 @@ def train():
     model.save(save_path)
 
 
-def eval():
+def test():
     # Load saved model
     model = HER.load(save_path, env=env)
 
@@ -75,6 +75,6 @@ if __name__ == "__main__":
     if mode == "train":
         train()
     elif mode == "eval" or mode == "test":
-        eval()
+        test()
     else:
         raise ValueError("check that you are in train or eval mode")
