@@ -63,16 +63,32 @@ def train(env_name, model_name):
             goal_selection_strategy='future',
             buffer_size=1000000,
             ent_coef='auto',
-            #batch_size=256,
+            batch_size=256,
             gamma=0.95,
-            #learning_rate=0.001,
+            learning_rate=0.001,
+            learning_starts=1000,
+            verbose=1,
+            tensorboard_log=log_path,
+        )
+        n_timesteps = int(3e6)
+        #n_timesteps = int(3.5e6)  # overshoot the ideal in case we do not converge
+    elif env_name == "FetchPickAndPlace-v1":
+        model = HER(
+            'MlpPolicy',
+            env,
+            SAC,
+            n_sampled_goal=4,
+            goal_selection_strategy='future',
+            buffer_size=1000000,
+            ent_coef='auto',
+            gamma=0.95,
             learning_starts=1000,
             train_freq=1,
             verbose=1,
             tensorboard_log=log_path,
         )
-        n_timesteps = 3e6
-        #n_timesteps = int(3.5e6)  # overshoot the ideal in case we do not converge
+        n_timesteps = int(4e6)
+        #n_timesteps = int(5e6)  # overshoot the ideal in case we do not converge
         env = DoneOnSuccessWrapper(env)
     else:
         raise ValueError("Unsupported environment")
