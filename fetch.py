@@ -92,17 +92,16 @@ def test(env_name, model_name):
 
     # Evaluate the agent
     episode_reward = 0.0
-    episode_steps = 0
+    cumul_steps = 0
     for _ in range(100):
         action, _ = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
         episode_reward += reward
-        episode_steps += 1
+        cumul_steps += 1
         if done or info.get('is_success', False):
-            print("Reward:{:>6}\tSuccess?{:>4}\tSteps:{:>4}".format(episode_reward, info.get('is_success', False), episode_steps))
+            print("Reward:{:>6}\tSuccess?{:>4}\tFinalStep:{:>4}".format(episode_reward, info.get('is_success', False), cumul_steps))
             episode_reward = 0.0
-            episode_steps = 0
             obs = env.reset()
 
 
