@@ -34,9 +34,9 @@ def train(env_name, model_name):
     log_path = f"../logs/{model_name}"
     save_path = f"../models/{model_name}"
 
-    # https://github.com/araffin/rl-baselines-zoo/blob/master/hyperparams/her.yml
     # SAC hyperparams
     if env_name == "FetchReach-v1":
+        # https://github.com/araffin/rl-baselines-zoo/blob/master/trained_agents/her/FetchReach-v1/config.yml
         model = HER(
             'MlpPolicy',
             env,
@@ -52,9 +52,10 @@ def train(env_name, model_name):
             verbose=1,
             tensorboard_log=log_path,
         )
-        #n_timesteps = 20000
-        n_timesteps = 25000  # overshoot the ideal in case we do not converge
+        n_timesteps = 20000
+        #n_timesteps = 25000  # overshoot in case we do not converge in IORT or IOIT
     elif env_name == "FetchPush-v1":
+        # https://github.com/araffin/rl-baselines-zoo/blob/master/trained_agents/her/FetchPush-v1/config.yml
         model = HER(
             'MlpPolicy',
             env,
@@ -71,8 +72,9 @@ def train(env_name, model_name):
             tensorboard_log=log_path,
         )
         n_timesteps = int(3e6)
-        #n_timesteps = int(3.5e6)  # overshoot the ideal in case we do not converge
+        #n_timesteps = int(3.5e6)  # overshoot in case we do not converge in IORT or IOIT
     elif env_name == "FetchPickAndPlace-v1":
+        # https://github.com/araffin/rl-baselines-zoo/blob/master/trained_agents/her/FetchPickAndPlace-v1/config.yml
         model = HER(
             'MlpPolicy',
             env,
@@ -88,7 +90,7 @@ def train(env_name, model_name):
             tensorboard_log=log_path,
         )
         n_timesteps = int(4e6)
-        #n_timesteps = int(5e6)  # overshoot the ideal in case we do not converge
+        #n_timesteps = int(5e6)  # overshoot in case we do not converge in IORT or IOIT
         env = DoneOnSuccessWrapper(env)
     else:
         raise ValueError("Unsupported environment")
