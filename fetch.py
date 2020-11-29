@@ -71,8 +71,8 @@ def train(env_name, model_name):
             verbose=1,
             tensorboard_log=log_path,
         )
-        #n_timesteps = 3e6
-        n_timesteps = int(3.5e6)  # overshoot the ideal in case we do not converge
+        n_timesteps = 3e6
+        #n_timesteps = int(3.5e6)  # overshoot the ideal in case we do not converge
         env = DoneOnSuccessWrapper(env)
     else:
         raise ValueError("Unsupported environment")
@@ -91,15 +91,18 @@ def test(env_name, model_name):
     obs = env.reset()
 
     # Evaluate the agent
-    episode_reward = 0
+    episode_reward = 0.0
+    episode_steps = 0
     for _ in range(100):
         action, _ = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
         episode_reward += reward
+        episode_steps += 1
         if done or info.get('is_success', False):
-            print("Reward:", episode_reward, "Success?", info.get('is_success', False))
+            print("Reward:{:>6}\tSuccess?{:>4}\tSteps:{:>4}".format(episode_reward, info.get('is_success', False), episode_steps))
             episode_reward = 0.0
+            episode_steps = 0
             obs = env.reset()
 
 
