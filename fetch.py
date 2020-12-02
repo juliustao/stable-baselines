@@ -29,25 +29,37 @@ class DoneOnSuccessWrapper(gym.Wrapper):
         return reward + self.reward_offset
 
 
-def train(env_name, model_name):
+def make_env(env_name):
+    # https://github.com/araffin/rl-baselines-zoo/blob/master/hyperparams/her.yml
     env = gym.make(env_name)
+    if env_name in ["FetchPush-v1", "FetchPickAndPlace-v1"]:
+        print("\nUsing DoneOnSuccessWrapper\n")
+        env = DoneOnSuccessWrapper(env)
+    return env
+
+
+def train(env_name, model_name):
+    env = make_env(env_name)
 
     log_path = f"../logs/{model_name}"
     save_path = f"../models/{model_name}"  # this is without the .zip
+    zip_save_path = os.path.abspath(save_path + ".zip")
 
-    if os.path.isfile(save_path + ".zip"):
+    if os.path.isfile(zip_save_path):
+        # load saved model
         model = HER.load(
             save_path,
             env=env,
             verbose=1,
             tensorboard_log=log_path,
         )
-        print("\nLoaded previous saved model\n")
+        print(f"\nLoaded previous saved model from {zip_save_path}\n")
         n_timesteps = int(1e6)
     else:
         # SAC hyperparams
         if env_name == "FetchReach-v1":
             # https://github.com/araffin/rl-baselines-zoo/blob/master/trained_agents/her/FetchReach-v1/config.yml
+            # https://github.com/araffin/rl-baselines-zoo/blob/master/hyperparams/her.yml
             model = HER(
                 'MlpPolicy',
                 env,
@@ -85,8 +97,7 @@ def train(env_name, model_name):
         #     #n_timesteps = int(3e6)
         #     n_timesteps = int(3.6e6)  # overshoot in case we do not converge in IORT or IOIT
         elif env_name == "FetchPush-v1":
-            # https://github.com/araffin/rl-baselines-zoo/blob/master/trained_agents/her/FetchPickAndPlace-v1/config.yml
-            env = DoneOnSuccessWrapper(env)
+            # https://github.com/araffin/rl-baselines-zoo/blob/master/hyperparams/her.yml
             model = HER(
                 'MlpPolicy',
                 env,
@@ -105,7 +116,7 @@ def train(env_name, model_name):
             n_timesteps = int(3.6e6)  # overshoot in case we do not converge in IORT or IOIT
         elif env_name == "FetchPickAndPlace-v1":
             # https://github.com/araffin/rl-baselines-zoo/blob/master/trained_agents/her/FetchPickAndPlace-v1/config.yml
-            env = DoneOnSuccessWrapper(env)
+            # https://github.com/araffin/rl-baselines-zoo/blob/master/hyperparams/her.yml
             model = HER(
                 'MlpPolicy',
                 env,
@@ -140,16 +151,11 @@ def train(env_name, model_name):
 
 
 def test(env_name, model_name):
-    env = gym.make(env_name)
+    env = make_env(env_name)
     save_path = f"../models/{model_name}"
 
     # Load saved model
     model = HER.load(save_path, env=env)
-
-    # Use DoneOnSuccessWrapper
-    if env_name in ["FetchPush-v1", "FetchPickAndPlace-v1"]:
-        print("\nUsing DoneOnSuccessWrapper\n")
-        env = DoneOnSuccessWrapper(env)
 
     obs = env.reset()
 
@@ -175,6 +181,9 @@ if __name__ == "__main__":
     assert len(sys.argv) == 4, "Please exactly specify env_name, model_name, mode"
     [_, env_name, model_name, mode] = sys.argv
 
+    print(f"Environment: {env_name}")
+    print(f"Saved model name: {model_name}")
+    print(f"Running mode: {mode}")
     if mode == "train":
         train(env_name, model_name)
     elif mode == "test":
